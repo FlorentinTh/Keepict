@@ -1,0 +1,194 @@
+<?php 
+    $title = 'Keepict - ' . $picture->title;
+    $this->headtitle($title);
+?>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Keepict</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li><a href="/">Flux</a></li>
+        <li><a href="<?= $this->url('album');?>">Albums</a></li>
+      </ul>
+      <?php $formSearch = $this->formSearch;
+            $formSearch->setAttribute('class', 'navbar-form navbar-left');
+            $formSearch->setAttribute('role', 'search');
+            $formSearch->prepare(); 
+            echo $this->form()->openTag($formSearch); ?> 
+        <div class="form-group">
+          <?php echo $this->formInput($formSearch->get('predicate')); ?>
+        </div>
+      <?php echo $this->form()->closeTag(); ?>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="hidden-xs">
+          <?php 
+            $pattern = '/^beardfont/';
+            if(preg_match_all($pattern, $user->avatar)): ?>
+              <div class="profil-pic-default">
+                <span class="<?= $user->avatar ?>"></span>
+              </div>
+          <?php else: ?>
+                <div class="profil-pic">
+                    <img src="<?= '/' . $this->escapeHtml($user->avatar) ?>" alt="avatar-<?= $this->escapeHtml($user->id) ?>">
+                </div>
+          <?php endif; ?>
+        </li>
+        <li class="dropdown" id='nav-user'>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?= $user->firstname . ' ' . $user->lastname ?> <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <?php if($user->isAdmin == 1): ?>
+            <li><a href="<?= $this->url('album', array('action'=>'create'));?>">Créer un album</a></li>
+            <li><a href="<?= $this->url('picture', array('action'=>'import')); ?>">Importer des photos</a></li>
+            <li class="divider"></li>
+            <li><a href="<?= $this->url('dashboard', array('action'=>'members'));?>">Administration <?php if($this->numPendingUser!=0): echo '<span class="label label-primary">' . $this->numPendingUser . '</span>'; endif; ?></a></li>
+            <li class="divider"></li>
+            <?php endif;?>
+            <li><a href="<?= $this->url('account', array('action'=>'settings'));?>">Paramètres du compte</a></li>
+            <li><a href="<?= $this->url('account', array('action'=>'signout'));?>">Me déconnecter</a></li>
+          </ul>
+        </li>
+      </ul> 
+    </div>
+  </div>
+</nav>
+
+<div class="alert alert-danger r-click">
+  <a class="close">×</a>
+  <strong>Oula ! </strong>Cette photo est la propriété de l'auteur !
+</div>
+
+<div class="wrap">
+  <?php if($this->isLandscape === true) :?>
+  <div class="pic-img-land">
+    <a href="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="fancybox" title="<?= $this->escapeHtml($picture->title) ?>">
+      <img src="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="img-responsive" alt="picture">
+    </a>
+  </div>
+  <?php else : ?>
+  <div class="pic-img-port">
+    <a href="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="fancybox" title="<?= $this->escapeHtml($picture->title) ?>">
+      <img src="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="img-responsive" alt="picture">
+    </a>
+  </div>
+  <?php endif; ?>
+  
+  <div class="pic-data">
+    <h2>
+      <?= $this->escapeHtml($picture->title) ?> 
+      <?php if($user->isAdmin == 1): ?>
+      <a class="btn btn-primary btn-sm" href="<?= $this->url('picture', array('action' => 'edit', 'id' => $picture->id, 'slug' => $picture->slug));?>"><i class="icon-pencil"></i> Modifier la photo</a>
+      <?php endif; ?>
+    </h2>
+    <hr>
+    <div class="row">
+      <div class="col-xs-12 col-sm-8 col-md-9">
+        <div class="desc">
+          <?php if($picture->description !== null): ?>
+              <h4>Description</h4>
+              <?= $this->escapeHtml($picture->description) ?>
+          <?php endif; ?>
+          
+          <?php if($this->nbTags !== 0): ?>
+              <h4>Tags</h4>
+              <p>
+                <?php $i = 0;
+                    foreach($tags as $tag):
+                        $i++;
+                        if ($i === $this->nbTags):
+                 ?>
+                    <a href="<?= $this->url('picture', array('action'=>'filter-tag', 'id' => $tag->id));?>"><?= $this->escapeHtml($tag->wording) ?></a>
+                <?php else: ?>
+                    <a href="<?= $this->url('picture', array('action'=>'filter-tag', 'id' => $tag->id));?>"><?= $this->escapeHtml($tag->wording) ?></a> -
+                <?php endif; ?> 
+                <?php endforeach; ?>
+              </p>
+          <?php endif; ?>
+          <h4>Catégorie</h4>
+          <p><a href="<?= $this->url('picture', array('action'=>'filter-category', 'id' => $category->id));?>"><?= $this->escapeHtml($category->wording) ?></a></p>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-4 col-md-3">
+        <div class="exifs">
+          <h4>Exifs</h4>
+          <?php if(!empty($exifs)): ?>
+              <span><strong>Appareil : </strong><?= $this->escapeHtml($exifs['appareil']) ?><br></span>
+              <span><strong>Focale : </strong><?= $this->escapeHtml($exifs['focale']) ?><br></span>
+              <span><strong>Vitesse : </strong><?= $this->escapeHtml($exifs['vitesse']) ?><br></span>
+              <span><strong>Ouverture : </strong><?= $this->escapeHtml($exifs['ouverture']) ?><br></span>
+              <span><strong>ISO : </strong><?= $this->escapeHtml($exifs['iso']) ?><br></span>
+          <?php else: ?>
+              <div class="exifs">
+                <blockquote class="unavailable">
+                  <p><strong>Oops ! </strong>
+                    Les informations exifs de cette photo n'ont pas pu être récupérées.</p>
+                </blockquote>
+              </div>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+  <div class="pic-com">
+    <h4>Commentaires <span class="label label-primary"><?= $this->escapeHtml($this->nbComments) ?></span></h4>
+    <div class="row">
+      <div class="col-xs-12 col-sm-9 col-md-9">
+        <div class="media">
+          <?php if(preg_match_all($pattern, $user->avatar)): ?>
+              <div class="pull-left profil-pic-comment">
+                <span class="<?= $this->escapeHtml($user->avatar) ?>"></span>
+              </div>
+            <?php else: ?>
+              <a class="pull-left" href="#">
+                <img class="media-object img-circle" src="<?= $this->escapeHtml('/' . $user->avatar) ?>" alt="user-<?= $this->escapeHtml($user->id) ?>">
+              </a>
+          <?php endif; ?>
+          <div class="media-body">
+            <h5 class="media-heading"><span class="username"><?= $this->escapeHtml($user->firstname) . ' ' . $this->escapeHtml($user->lastname) ?></span></h5>
+              <div class="form-group">
+                <?php $form = $this->form;
+                      $form->setAttribute('role', 'form');
+                      $form->setAttribute('action', $this->url('picture', array('action' => 'index', 'id' => $picture->id, 'slug' => $picture->slug)));
+                      $form->prepare(); 
+                      echo $this->form()->openTag($form); 
+                      echo $this->form_row($form->get('csrf')); 
+                      echo $this->formHidden($form->get('id')); 
+                      echo $this->formtextarea($form->get('body')); ?>
+                </div>
+                <?php echo $this->formsubmit($form->get('submit')->setValue('Commenter'));
+                      echo $this->form()->closeTag(); ?>
+          </div>
+        </div>
+        <?php if($this->nbComments === 0): ?>
+          <blockquote class="unavailable">
+            <p><strong>Oops ! </strong>
+                Personne n'a encore partagé son avis sur cette photo.</p>
+          </blockquote>
+        <?php endif; 
+              foreach($comments as $comment): ?>
+        <div class="media">
+          <?php if(preg_match_all($pattern, $comment->avatar)): ?>
+            <div class="pull-left profil-pic-comment">
+              <span class="<?= $this->escapeHtml($comment->avatar) ?>"></span>
+            </div>
+          <?php else: ?>
+            <a class="pull-left" href="#">
+                <img class="media-object img-circle" src="<?= $this->escapeHtml('/' . $comment->avatar) ?>" alt="user-<?= $this->escapeHtml($comment->id) ?>">
+            </a>
+          <?php endif; ?>
+          <div class="media-body">
+            <h5 class="media-heading"><span class="username"><?= $this->escapeHtml($comment->firstname . ' ' . $comment->lastname) ?></span></h5>
+            <p><?= $this->escapeHtml($comment->body) ?></p>
+          </div>
+        </div>
+        <?php endforeach; ?> 
+      </div>
+    </div>  
+  </div>
+  </div>
+</div>

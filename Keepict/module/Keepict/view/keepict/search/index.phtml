@@ -1,0 +1,91 @@
+<?php 
+    $title = 'Recherche - ' . $this->predicate;
+    $this->headtitle($title);
+?>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Keepict</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li><a href="/">Flux</a></li>
+        <li><a href="<?= $this->url('album');?>">Albums</a></li>
+      </ul>
+      <?php $formSearch = $this->formSearch;
+            $formSearch->setAttribute('class', 'navbar-form navbar-left');
+            $formSearch->setAttribute('role', 'search');
+            $formSearch->prepare(); 
+            echo $this->form()->openTag($formSearch); ?> 
+        <div class="form-group">
+          <?php echo $this->formInput($formSearch->get('predicate')); ?>
+        </div>
+      <?php echo $this->form()->closeTag(); ?>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="hidden-xs">
+         <?php 
+            $pattern = '/^beardfont/';
+            if(preg_match_all($pattern, $user->avatar)): ?>
+              <div class="profil-pic-default">
+                <span class="<?= $user->avatar ?>"></span>
+              </div>
+          <?php else: ?>
+                <div class="profil-pic">
+                    <img src="<?= '/' . $this->escapeHtml($user->avatar) ?>" alt="avatar-<?= $this->escapeHtml($user->id) ?>">
+                </div>
+          <?php endif; ?> 
+        </li>
+        <li class="dropdown" id='nav-user'>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?= $user->firstname . ' ' . $user->lastname ?> <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <?php if($user->isAdmin == 1): ?>
+            <li><a href="<?= $this->url('album', array('action'=>'create'));?>">Créer un album</a></li>
+            <li><a href="#">Importer des photos</a></li>
+            <li class="divider"></li>
+            <li><a href="<?= $this->url('dashboard', array('action'=>'members'));?>">Administration <?php if($this->numPendingUser!=0): echo '<span class="label label-primary">' . $this->numPendingUser . '</span>'; endif; ?></a></li>
+            <li class="divider"></li>
+            <?php endif;?>
+            <li><a href="<?= $this->url('account', array('action'=>'settings'));?>">Paramètres du compte</a></li>
+            <li><a href="<?= $this->url('account', array('action'=>'signout'));?>">Me déconnecter</a></li>
+          </ul>
+        </li>
+      </ul> 
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="container">
+    <h4>Recherche : <?= $this->predicate; ?></h4>
+    <br>
+    <?php if($this->nbResults === 0):?>
+        <blockquote class="empty">
+          <p><strong>Information - </strong>
+            aucune phoro n'a été trouvée.</p>
+        </blockquote>
+    <?php else: ?>
+    <div class="row">
+      <?php foreach ($this->results as $picture) : ?>
+      <div class="col-xs-12 col-sm-6 col-md-3 pic">
+        <a href="<?= $this->url('picture', array('action'=>'index', 'id' => $picture->id, 'slug' => $picture->slug));?>" class="thumbnail thumbnail-unq">
+          <img src="<?php if($this->currentPage != 1): echo $this->escapeHtml('/' . $picture->pathThumbnail); else: echo $this->escapeHtml($picture->pathThumbnail); endif; ?>" alt="<?= $this->escapeHtml($picture->title) ?>">
+        </a>
+        <div class="pic-info">
+          <h4><?= $this->escapeHtml($picture->title) ?></h4>
+        </div>
+        <div class="caption">
+          <h4><?= $this->escapeHtml($picture->title) ?></h4>
+        </div>
+      </div>
+      <?php endforeach; ?>
+      <?php endif; ?>
+    </div>
+    <br>
+  </div>
+</div>

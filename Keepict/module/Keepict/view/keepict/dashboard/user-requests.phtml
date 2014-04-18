@@ -1,0 +1,136 @@
+<?php 
+    $title = 'Keepict - Administration';
+    $this->headtitle($title);
+?>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Keepict</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li><a href="/">Flux</a></li>
+        <li><a href="<?= $this->url('album');?>">Albums</a></li>
+      </ul>
+      <?php $formSearch = $this->formSearch;
+            $formSearch->setAttribute('class', 'navbar-form navbar-left');
+            $formSearch->setAttribute('role', 'search');
+            $formSearch->prepare(); 
+            echo $this->form()->openTag($formSearch); ?> 
+        <div class="form-group">
+          <?php echo $this->formInput($formSearch->get('predicate')); ?>
+        </div>
+      <?php echo $this->form()->closeTag(); ?>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="hidden-xs">
+          <?php 
+            $pattern = '/^beardfont/';
+            if(preg_match_all($pattern, $user->avatar)): ?>
+              <div class="profil-pic-default">
+                <span class="<?= $user->avatar ?>"></span>
+              </div>
+          <?php else: ?>
+                <div class="profil-pic">
+                    <img src="<?= '/' . $this->escapeHtml($user->avatar) ?>" alt="avatar-<?= $this->escapeHtml($user->id) ?>">
+                </div>
+          <?php endif; ?>
+        </li>
+        <li class="dropdown" id='nav-user'>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?= $user->firstname . ' ' . $user->lastname ?> <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <?php if($user->isAdmin == 1): ?>
+            <li><a href="<?= $this->url('album', array('action'=>'create'));?>">Créer un album</a></li>
+            <li><a href="<?= $this->url('picture', array('action'=>'import')); ?>">Importer des photos</a></li>
+            <li class="divider"></li>
+            <li><a href="<?= $this->url('dashboard', array('action'=>'members'));?>">Administration <?php if($this->numPendingUser!=0): echo '<span class="label label-primary">' . $this->numPendingUser . '</span>'; endif; ?></a></li>
+            <li class="divider"></li>
+            <?php endif;?>
+            <li><a href="<?= $this->url('account', array('action'=>'settings'));?>">Paramètres du compte</a></li>
+            <li><a href="<?= $this->url('account', array('action'=>'signout'));?>">Me déconnecter</a></li>
+          </ul>
+        </li>
+      </ul> 
+    </div>
+  </div>
+</nav>
+
+
+<div class="wrap">
+  <h2 class="admin-h">Administration</h2>
+  <div class="admin-content">
+    <div class="admin-btn-ctrl">
+      <div class="btn-group">
+        <a class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+          Gestion des membres <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="<?= $this->url('dashboard', array('action'=>'members'));?>">Liste des membres</a></li>
+          <li><a href="<?= $this->url('dashboard', array('action'=>'user-requests'));?>">Demandes en attente <?php if($this->numPendingUser!=0): echo '<span class="label label-primary">' . $this->numPendingUser . '</span>'; endif; ?></a></li>
+          <li><a href="<?= $this->url('dashboard', array('action'=>'blacklist'));?>">Liste noire</a></li>
+        </ul>
+      </div>
+      <div class="btn-group">
+        <a class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          Gestion des albums <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="<?= $this->url('dashboard', array('action'=>'published-albums'));?>">Liste des albums publiés</a></li>
+          <li><a href="<?= $this->url('dashboard', array('action'=>'unpublished-albums'));?>">Liste des albums en attente de publication</a></li>
+        </ul>
+      </div>
+      <a href="<?= $this->url('dashboard', array('action'=>'add'));?>" class="btn btn-default">Nouvelle catégorie</a>
+    </div>
+    <blockquote class="unavailable">
+      <p><strong>Attention ! </strong>
+        Refuser l'accès à un membre le placera dans la liste noire.</p>
+    </blockquote>
+    <?php if($this->numPendingUser !== 0): ?>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Avatar</th>
+          <th>Nom &amp; Prénom</th>
+          <th>Courriel</th>
+          <th>Date de demande</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($this->usersPending as $usersPending) : ?>
+        <tr>
+          <td>
+            <?php 
+                $pattern = '/^beardfont/';
+                if(preg_match_all($pattern, $usersPending->avatar)): ?>
+                    <div class="default-avatar">
+                        <span class="<?= $usersPending->avatar ?>"></span>
+                    </div>
+           <?php else: ?>
+                    <img src="<?= '../' . $this->escapeHtml($usersPending->avatar) ?>" alt="avatar">
+           <?php endif; ?> 
+          </td>
+          <td><?= $this->escapeHtml($usersPending->firstname) . ' ' . $this->escapeHtml($usersPending->lastname)?></td>
+          <td><?= $this->escapeHtml($usersPending->courriel) ?></td>
+          <td><?= $this->escapeHtml($usersPending->dateRequest) ?></td>
+          <td>
+            <a class="btn btn-xs btn-primary" href="<?= $this->url('dashboard', array('action' => 'accept-request', 'id' => $usersPending->id));?>"><i class="icon-thumbs-up-alt"></i> Accepter</a>
+            <a class="btn btn-xs btn-danger" href="<?= $this->url('dashboard', array('action' => 'decline-request', 'id' => $usersPending->id));?>"><i class="icon-thumbs-down-alt"></i> Refuser</a>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <?php else: ?>
+    <blockquote class="empty">
+      <p><strong>Information - </strong>
+        aucune demande en attente pour l'instant.</p>
+    </blockquote>
+    <?php endif; ?>
+  </div>
+</div>

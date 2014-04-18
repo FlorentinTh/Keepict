@@ -1,0 +1,166 @@
+<?php 
+    $title = 'Keepict - ' . $album->name;
+    $this->headtitle($title);
+?>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Keepict</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li><a href="/">Flux</a></li>
+        <li><a href="<?= $this->url('album');?>">Albums</a></li>
+      </ul>
+      <?php $formSearch = $this->formSearch;
+            $formSearch->setAttribute('class', 'navbar-form navbar-left');
+            $formSearch->setAttribute('role', 'search');
+            $formSearch->prepare(); 
+            echo $this->form()->openTag($formSearch); ?> 
+        <div class="form-group">
+          <?php echo $this->formInput($formSearch->get('predicate')); ?>
+        </div>
+      <?php echo $this->form()->closeTag(); ?>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="hidden-xs">
+          <?php 
+            $pattern = '/^beardfont/';
+            if(preg_match_all($pattern, $user->avatar)): ?>
+              <div class="profil-pic-default">
+                <span class="<?= $user->avatar ?>"></span>
+              </div>
+          <?php else: ?>
+                <div class="profil-pic">
+                    <img src="<?= '/' . $this->escapeHtml($user->avatar) ?>" alt="avatar">
+                </div>
+          <?php endif; ?>
+        </li>
+        <li class="dropdown" id='nav-user'>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?= $user->firstname . ' ' . $user->lastname ?> <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <?php if($user->isAdmin == 1): ?>
+            <li><a href="<?= $this->url('album', array('action'=>'create'));?>">Créer un album</a></li>
+            <li><a href="<?= $this->url('picture', array('action'=>'import', 'id' => $album->id)); ?>">Importer des photos</a></li>
+            <li class="divider"></li>
+            <li><a href="<?= $this->url('dashboard', array('action'=>'members'));?>">Administration <?php if($this->numPendingUser!=0): echo '<span class="label label-primary">' . $this->numPendingUser . '</span>'; endif; ?></a></li>
+            <li class="divider"></li>
+            <?php endif;?>
+            <li><a href="<?= $this->url('account', array('action'=>'settings'));?>">Paramètres du compte</a></li>
+            <li><a href="<?= $this->url('account', array('action'=>'signout'));?>">Me déconnecter</a></li>
+          </ul>
+        </li>
+      </ul> 
+    </div>
+  </div>
+</nav>
+
+<div class="alert alert-danger r-click">
+  <a class="close">×</a>
+  <strong>Oula ! </strong>Cette photo est la propriété de l'auteur !
+</div>
+
+<div class="wrap">
+  <div class="pic-img-land">
+    <img src="<?= $this->escapeHtml('/'.$album->pathCover) ?>" class="img-responsive" alt="cover">
+  </div>
+  <div class="pic-data">
+    <h2>
+      <?= $this->escapeHtml($album->name) ?> 
+      <?php if($user->isAdmin == 1): ?>
+        <a class="btn btn-primary btn-sm" href="<?= $this->url('album', array('action'=>'edit', 'id' => $album->id, 'slug' => $album->slug)); ?>"><i class="icon-pencil"></i> Modifier l'album</a>
+      <?php endif; ?>
+    </h2>
+    <hr>
+    <div class="row">
+      <?php foreach ($this->pictures as $picture) : ?>
+      <div class="col-xs-12 col-sm-3 col-md-3">
+        <a href="<?= $this->url('picture', array('action'=>'index', 'id' => $picture->id, 'slug' => $picture->slug));?>" class="thumbnail">
+          <img src="<?= $this->escapeHtml('/' . $picture->pathThumbnail) ?>" alt="thumbnail-<?= $this->escapehtml($picture->id)?>">
+        </a>
+      </div>
+      <?php endforeach; ?>
+      <div class="ctrl">
+        <a class="btn btn-primary" href="<?= $this->url('picture', array('action'=>'import', 'id' => $album->id)); ?>"><i class="icon-plus"></i> Ajouter des photos</a>
+        <?php if($nbPictures):?>
+            <a class="btn btn-default" href="<?= $this->url('album', array('action'=>'details', 'id' => $album->id, 'slug' => $album->slug));?>">Voir toutes les photos <i class="icon-right-open"></i></a>
+        <?php else :?>
+            <div class="empty-comment">
+                <blockquote class="empty">
+                  <p><strong>Information - </strong>
+                    Cet album ne contient aucune photographies.</p>
+                </blockquote>
+            </div>
+        <?php endif;?>
+      </div>
+    </div>
+    <hr>
+    <div id="alb-desc">
+      <?php if($album->description !== null): ?>
+          <h4>Description</h4>
+          <p><?= $this->escapeHtml($album->description) ?></p>
+      <?php endif; ?>
+    </div>    
+    <div class="pic-com">
+      <h4>Commentaires <span class="label label-primary"><?= $this->escapehtml($nbComments)?></span></h4>
+      <div class="row">
+        <div class="col-xs-12 col-sm-9 col-md-9">
+          <div class="media">
+            <?php if(preg_match_all($pattern, $user->avatar)): ?>
+              <div class="pull-left profil-pic-comment">
+                <span class="<?= $this->escapeHtml($user->avatar) ?>"></span>
+              </div>
+            <?php else: ?>
+                <a class="pull-left" href="#">
+                    <img class="media-object img-circle" src="<?= $this->escapeHtml('/' . $user->avatar) ?>" alt="user-<?= $this->escapeHtml($user->id) ?>">
+                </a>
+            <?php endif; ?>
+            <div class="media-body">
+              <h5 class="media-heading"><span class="username"><?= $this->escapeHtml($user->firstname) . ' ' . $this->escapeHtml($user->lastname) ?></span></h5>
+                <div class="form-group">
+                <?php $form = $this->form;
+                      $form->setAttribute('role', 'form');
+                      $form->setAttribute('action', $this->url('album', array('action' => 'record', 'id' => $album->id, 'slug' => $album->slug)));
+                      $form->prepare(); 
+                      echo $this->form()->openTag($form); 
+                      echo $this->form_row($form->get('csrf')); 
+                      echo $this->formHidden($form->get('id')); 
+                      echo $this->formtextarea($form->get('body')); ?>
+                </div>
+                <?php echo $this->formsubmit($form->get('submit')->setValue('Commenter'));
+                      echo $this->form()->closeTag(); ?>
+            </div>
+          </div>
+          <?php if($this->nbComments === 0): ?>
+          <blockquote class="unavailable">
+            <p><strong>Oops ! </strong>
+                Personne n'a encore partagé son avis sur cet album.</p>
+          </blockquote>
+          <?php else :
+          foreach ($this->comments as $comment) : ?>
+          <div class="media">
+            <?php if(preg_match_all($pattern, $comment->avatar)): ?>
+              <div class="pull-left profil-pic-comment">
+                <span class="<?= $this->escapeHtml($comment->avatar) ?>"></span>
+              </div>
+            <?php else: ?>
+                <a class="pull-left" href="#">
+                    <img class="media-object img-circle" src=" <?= $this->escapeHtml('/' . $comment->avatar) ?>" alt="user-<?= $this->escapeHtml($comment->id) ?>">
+                </a>
+            <?php endif; ?>
+            <div class="media-body">
+              <h5 class="media-heading"><span class="username"><?= $this->escapeHtml($comment->firstname) . ' ' . $this->escapeHtml($comment->lastname) ?></span></h5>
+              <p><?= $this->escapeHtml($comment->body) ?></p>
+            </div>
+          </div>
+          <?php endforeach; 
+                endif; ?>
+        </div>
+      </div>  
+    </div>
+  </div>
+</div>

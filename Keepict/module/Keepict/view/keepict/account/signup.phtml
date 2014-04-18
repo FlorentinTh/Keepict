@@ -1,0 +1,50 @@
+<?php 
+    $title = 'Keepict';
+    $this->headtitle($title);
+?>
+
+<?php if($this->wrongData === true):?>
+<div class="alert alert-danger alert-login">
+  <a class="close">×</a>
+  <strong> Petit problème ! </strong>La date de naissance n'est pas correcte.
+</div>
+<?php endif;?>
+
+<?php if($this->existingCourriel === true):?>
+<div class="alert alert-danger alert-login">
+  <a class="close">×</a>
+  <strong> Petit problème ! </strong>Ce courriel est déjà utilisé !
+</div>
+<?php endif;?>
+
+<?php if($this->validRequest === true):?>
+<div class="alert alert-info alert-login">
+  <a class="close">×</a>
+  <strong> Super ! </strong>ta demande est en attente de validation :-) !
+</div>
+<?php endif;?>
+
+<div class="index">
+  <div class="container">
+    <?php $form = $this->form;
+    $form->setAttribute('class', 'form-signup');
+    $form->setAttribute('role', 'form');
+    $form->setAttribute('action', $this->url('account', array('action' => 'signup')));
+    $form->prepare(); 
+    echo $this->form()->openTag($form); ?>
+    <h2>Créez votre compte</h2>
+    <?php echo $this->form_row($form->get('csrf')); 
+    echo $this->formHidden($form->get('id'));
+    echo $this->formInput($form->get('firstname'));
+    echo $this->formInput($form->get('lastname'));
+    echo $this->formemail($form->get('courriel'));
+    echo $this->formInput($form->get('birth'));
+    echo $this->formInput($form->get('password')); ?>
+    <br>
+    <?php echo $this->formsubmit($form->get('submit')); ?>
+    <p>ou</p>
+    <a class="btn btn-lg btn-success btn-block"  href="<?= $this->url('account', array('action'=>'signin'));?>">Se connecter</a>
+    <br>
+    <?php echo $this->form()->closeTag(); ?>
+  </div>
+</div>

@@ -1,0 +1,185 @@
+<?php 
+    $title = 'Keepict - ' . $picture->title;
+    $this->headtitle($title);
+?>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Keepict</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li><a href="/">Flux</a></li>
+        <li><a href="<?= $this->url('album');?>">Albums</a></li>
+      </ul>
+      <?php $formSearch = $this->formSearch;
+            $formSearch->setAttribute('class', 'navbar-form navbar-left');
+            $formSearch->setAttribute('role', 'search');
+            $formSearch->prepare(); 
+            echo $this->form()->openTag($formSearch); ?> 
+        <div class="form-group">
+          <?php echo $this->formInput($formSearch->get('predicate')); ?>
+        </div>
+      <?php echo $this->form()->closeTag(); ?>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="hidden-xs">
+          <?php 
+            $pattern = '/^beardfont/';
+            if(preg_match_all($pattern, $user->avatar)): ?>
+              <div class="profil-pic-default">
+                <span class="<?= $user->avatar ?>"></span>
+              </div>
+          <?php else: ?>
+                <div class="profil-pic">
+                    <img src="<?= '/' . $this->escapeHtml($user->avatar) ?>" alt="avatar-<?= $this->escapeHtml($user->id) ?>">
+                </div>
+          <?php endif; ?>
+        </li>
+        <li class="dropdown" id='nav-user'>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?= $user->firstname . ' ' . $user->lastname ?> <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <?php if($user->isAdmin == 1): ?>
+            <li><a href="<?= $this->url('album', array('action'=>'create'));?>">Créer un album</a></li>
+            <li><a href="<?= $this->url('picture', array('action'=>'import')); ?>">Importer des photos</a></li>
+            <li class="divider"></li>
+            <li><a href="<?= $this->url('dashboard', array('action'=>'members'));?>">Administration <?php if($this->numPendingUser!=0): echo '<span class="label label-primary">' . $this->numPendingUser . '</span>'; endif; ?></a></li>
+            <li class="divider"></li>
+            <?php endif;?>
+            <li><a href="<?= $this->url('account', array('action'=>'settings'));?>">Paramètres du compte</a></li>
+            <li><a href="<?= $this->url('account', array('action'=>'signout'));?>">Me déconnecter</a></li>
+          </ul>
+        </li>
+      </ul> 
+    </div>
+  </div>
+</nav>
+
+
+<div class="alert alert-danger r-click">
+  <a class="close">×</a>
+  <strong>Oula ! </strong>Cette photo est la propriété de l'auteur !
+</div>
+
+<?php if($this->isFieldsValid === false):?>
+<div class="alert alert-danger alert-login">
+  <a class="close">×</a>
+  <strong> Petit problème ! </strong>Les champs renseignés ne sont pas valides.
+</div>
+<?php endif;?>
+
+
+<div class="wrap">
+  <?php if($this->isLandscape === true) :?>
+  <div class="pic-img-land">
+    <a href="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="fancybox" title="<?= $this->escapeHtml($picture->title) ?>">
+      <img src="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="img-responsive" alt="picture">
+    </a>
+  </div>
+  <?php else : ?>
+  <div class="pic-img-port">
+    <a href="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="fancybox" title="<?= $this->escapeHtml($picture->title) ?>">
+      <img src="<?= $this->escapeHtml('/'.$picture->pathPicture) ?>" class="img-responsive" alt="picture">
+    </a>
+  </div>
+  <?php endif; ?>
+  
+  <div class="pic-data">
+   <div class="input-pic radius">
+        <?php $formEdit = $this->formEdit;
+              $formEdit->setAttribute('role', 'form');
+              $formEdit->setAttribute('action', $this->url('picture', array('action' => 'edit', 'id' => $picture->id, 'slug' => $picture->slug)));
+              $formEdit->prepare(); 
+              echo $this->form()->openTag($formEdit); 
+              echo $this->formHidden($formEdit->get('id'));
+              echo $this->formInput($formEdit->get('title')); ?>
+        <div class="btn-edit">
+          <a class="btn btn-default" href="<?= $this->url('picture', array('action'=>'index', 'id' => $picture->id, 'slug' => $picture->slug));?>">Annuler</a>
+          <?= $this->formsubmit($formEdit->get('save')); ?>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-xs-12 col-sm-8 col-md-9">
+        <div class="desc">
+          <h4>Description</h4>
+          <div class="radius">
+            <?= $this->formtextarea($formEdit->get('description')); ?>
+          </div>
+          <h4>Tags</h4>
+          <div class="radius">
+            <blockquote class="empty">
+              <p><strong>Information</strong>
+                 - Séparez les tags par des espaces.</p>
+            </blockquote>
+            <?= $this->forminput($formEdit->get('tags')); ?>
+          </div>
+          <h4>Catégorie</h4>
+          <div class="radius">
+            <?= $this->formselect($formEdit->get('category')); ?>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-12 col-sm-4 col-md-3">
+        <div class="exifs">
+          <h4>Exifs</h4>
+          <?php if(!empty($exifs)): ?>
+              <span><strong>Appareil : </strong><?= $this->escapeHtml($exifs['appareil']) ?><br></span>
+              <span><strong>Focale : </strong><?= $this->escapeHtml($exifs['focale']) ?><br></span>
+              <span><strong>Vitesse : </strong><?= $this->escapeHtml($exifs['vitesse']) ?><br></span>
+              <span><strong>Ouverture : </strong><?= $this->escapeHtml($exifs['ouverture']) ?><br></span>
+              <span><strong>ISO : </strong><?= $this->escapeHtml($exifs['iso']) ?><br></span>
+          <?php else: ?>
+              <div class="exifs">
+                <blockquote class="unavailable">
+                  <p><strong>Oops ! </strong>
+                    Les informations exifs de cette photo n'ont pas pu être récupérées.</p>
+                </blockquote>
+              </div>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+    <?= $this->form()->closeTag(); ?>
+    <br>
+    <hr>
+    
+  <div class="pic-com">
+    <h4>Commentaires <span class="label label-primary"><?= $this->escapeHtml($this->nbComments) ?></span></h4>
+    <div class="row">
+      <div class="col-xs-12 col-sm-9 col-md-9">
+        <?php if($this->nbComments === 0): ?>
+          <blockquote class="unavailable">
+            <p><strong>Oops ! </strong>
+                Personne n'a encore partagé son avis sur cette photo.</p>
+          </blockquote>
+        <?php endif; 
+              foreach($comments as $comment): ?>
+        <div class="media no-form">
+          <?php if(preg_match_all($pattern, $comment->avatar)): ?>
+            <div class="pull-left profil-pic-comment">
+              <span class="<?= $this->escapeHtml($comment->avatar) ?>"></span>
+            </div>
+          <?php else: ?>
+            <a class="pull-left" href="#">
+                <img class="media-object img-circle" src="<?= $this->escapeHtml('/' . $comment->avatar) ?>" alt="user-<?= $this->escapeHtml($comment->uid) ?>">
+            </a>
+          <?php endif; ?>
+          <div class="media-body">
+            <h5 class="media-heading">
+                <span class="username"><?= $this->escapeHtml($comment->firstname . ' ' . $comment->lastname) ?></span>
+                <a class="btn btn-danger btn-xs del-user" href="<?= $this->url('picture', array('action' => 'delete-comment', 'id' => $comment->id, 'picture' => $picture->id));?>">supprimer</a>
+            </h5>
+            <p><?= $this->escapeHtml($comment->body) ?></p>
+          </div>
+        </div>
+        <?php endforeach; ?> 
+      </div>
+    </div>  
+  </div>
+  </div>
+</div>
