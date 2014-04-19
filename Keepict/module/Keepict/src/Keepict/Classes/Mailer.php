@@ -11,7 +11,7 @@ class Mailer
     private $HOST = 'smtp.gmail.com';
     private $PORT = 587;
     private $USERNAME = 'thullierflorentin';
-    private $PASSWORD = 'CTfJLrWyu8tXoNDJQVa2hoLnHeAnpg';
+    private $PASSWORD = '';
     
     public function __contruct(){}
     
