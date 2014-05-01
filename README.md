@@ -46,6 +46,5 @@ UQAC - H2014
         ...
     }
     ```
-    
+
 5. __Important :__ Verify that __memory_limit__ in your `php.ini` is under comment
-6. 
