@@ -32,6 +32,7 @@ UQAC - H2014
         ),
     );
     ```
+    
 4. Configure the informations of your email account provider in `Keepict/module/Keepict/src/Keepict/Classes/Mailer.php` :
     ```php
     <?php
