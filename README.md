@@ -2,14 +2,13 @@ Keepict
 =======
 Version : 1.0 
 UQAC - H2014
-=======
+
 ### Settings
 1. Import `database.sql` into phpMyAdmin
 
 2. Change __dbname__ in `Keepict/config/autoload/global.php` :
     ```php
     <?php
-
     return array(
         'db' => array(
             'driver'         => 'Pdo',
@@ -32,7 +31,7 @@ UQAC - H2014
         ),
     );
     ```
-    
+
 4. Configure the informations of your email account provider in `Keepict/module/Keepict/src/Keepict/Classes/Mailer.php` :
     ```php
     <?php
@@ -41,10 +40,12 @@ UQAC - H2014
     {
         private $NAME = 'xxxxx';
         private $HOST = 'xxxxx';
-        private $PORT = xxxxx;
+        private $PORT = 'xxxxx';
         private $USERNAME = 'xxxxx';
         private $PASSWORD = 'xxxxx';
         ...
     }
     ```
-=======
+    
+5. __Important :__ Verify that __memory_limit__ in your `php.ini` is under comment
+6. 
