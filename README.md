@@ -35,7 +35,7 @@ UQAC - H2014
 4. Configure the informations of your email account provider in `Keepict/module/Keepict/src/Keepict/Classes/Mailer.php` :
     ```php
     <?php
-    //...
+    ...
     class Mailer
     {
         private $NAME = 'xxxxx';
@@ -43,8 +43,7 @@ UQAC - H2014
         private $PORT = xxxxx;
         private $USERNAME = 'xxxxx';
         private $PASSWORD = 'xxxxx';
-        //...
+        ...
     }
     ```
-5. __Important :__ Verify that __memory_limit__ in your `php.ini` is under comment
 =======
